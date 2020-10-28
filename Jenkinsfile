@@ -8,27 +8,15 @@ pipeline {
 	    disableConcurrentBuilds()
 	  }
     
-    agent { label 'master' }
-	    stages {
-	        stage('checkExpireCerts') {
-	            parallel {
-	                stage('checkExpireCerts_HTTP') {
-	                    steps {
-	                        checkExpireCerts_HTTP_Task01()
-	                    }
-	                }
-	                stage('checkExpireCerts_SMTP') {
-	                    steps {
-	                        checkExpireCerts_SMTP_Task02()
-	                    }
-	                }
-	
-	
-	
-	
-	            }
-	        }
-	    }
+    agent any
+    stages {
+        stage('Example') {
+            steps {
+                ftp2_test()
+                
+            }
+        }
+    }
 
 
   post {
@@ -47,46 +35,9 @@ pipeline {
 	  }
 }
 
-def checkExpireCerts_HTTP_Task01() {
-	  def labels = ['testzone01']
-	  def builders = [: ]
-	  for (x in labels) {
-	    def label = x
-	
-	    builders[label] = {
-	      node(label) {
-	
-	        cleanWs()
-	        checkout scm
-	        sh "chmod +x ./checkCertsHTTP.sh ./checkCertsSMTP.sh"
-	        sh "sudo ./checkCertsHTTP.sh www.uadreams.com cp.uadreams.com requestor.uadreams.com"
-	        cleanWs()
-	
-	      }
-	    }
-	  }
-	  parallel builders
-	}
-	
-	
-	def checkExpireCerts_SMTP_Task02() {
-	  def labels = ['testzone01']
-	  def builders = [: ]
-	  for (x in labels) {
-	    def label = x
-	
-	    builders[label] = {
-	      node(label) {
-	
-	        cleanWs()
-	        checkout scm
-	        sh "chmod +x ./checkCertsHTTP.sh ./checkCertsSMTP.sh"
-	        sh "sudo ./checkCertsSMTP.sh mx0.uadreams.com mx1.uadreams.com"
-	        cleanWs()
-	
-	      }
-	    }
-	  }
-	  parallel builders
-	}
-	
+def ftp2_test() {
+	withCredentials([string(credentialsId: 'l_ftp', variable: 'USERNAME'), string(credentialsId: 'p_ftp', variable: 'PASSWORD')]) {
+	       sh ("dd if=/dev/urandom of=test_file bs=1 count=1024 &> /dev/null")
+	       sh ("curl --max-time 3 -T test_file ftp://ftp.uadreams.com --user ${USERNAME}:${PASSWORD}")
+	   }
+}
