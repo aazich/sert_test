@@ -1,0 +1,27 @@
+version: '2.1'
+
+services:
+  jenkins-sshagent:
+    build: ./jenkins-sshagent
+#    image: 'dockerhub.uadreams.com/jenkins-sshagent:CENTGATE1.v.0.0.4'
+    container_name: 'sshagent'
+    restart: always
+    pid: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+#      - /var/run/keepalived.pid:/var/run/keepalived.pid:ro
+#      - /etc/keepalived/keepalived.conf:/etc/keepalived/keepalived.conf
+#    ports:
+#      - "10.12.34.205:8822:22/tcp"
+#      - "8822:22/tcp"
+    command: ping localhost
+
+#  banip:
+#    build: ./banip
+#    image: 'dockerhub.uadreams.com/banip:lb1.v.0.0.1'
+#    container_name: 'banip'
+#    restart: always
+#    network_mode: host
+#    privileged: true
+#    command: ping localhost
+
